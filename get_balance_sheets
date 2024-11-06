@@ -1,0 +1,35 @@
+import pandas as pd
+from edgar import Company, set_identity
+from edgar.financials import Financials
+##Gets balance sheets for listed companies.  Prints to screen and writes to file.
+
+# Set identity for EDGAR API access
+set_identity("691950170reg@gmail.com")
+
+# List of company ticker symbols
+tickers = ["REI", "AMPY", "EP"]
+
+# Loop through each company ticker
+for ticker in tickers:
+    try:
+        # Get the latest 10-K filing
+        tenk = Company(ticker).get_filings(form="10-K").latest(1).obj()
+        
+        # Extract the financials from the 10-K
+        financials = tenk.financials
+        
+        # Get the balance sheet (adjust index if needed)
+        df = financials.get_balance_sheet(3).get_dataframe()
+        
+        # Print the DataFrame for verification
+        print(f"Balance Sheet for {ticker}:\n", df)
+        
+        # Optionally, save the DataFrame to a CSV file
+        df.to_csv(f"{ticker}_balance_sheet.csv", index=True)
+        
+        print(f"Balance sheet for {ticker} saved to {ticker}_balance_sheet.csv")
+        
+    except Exception as e:
+        print(f"Failed to retrieve data for {ticker}: {e}")
+
+
