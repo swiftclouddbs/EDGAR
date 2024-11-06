@@ -1,0 +1,29 @@
+from edgar import Company
+from edgar.financials import Financials
+
+# Set identity for EDGAR API access
+set_identity("691950170reg@gmail.com")
+
+# List of company ticker symbols
+tickers = ["EP", "AMPY", "KGEI", "REI"]
+
+for ticker in tickers:
+    try:
+        # Get the latest 10-K filing for each company
+        filing = Company(ticker).get_filings(form="10-K").latest(1)
+        
+        # Extract financial data from the filing
+        financials = Financials.extract(filing)
+        statements = financials.xbrl_data.statements
+        
+        # Convert the desired financial statement to a DataFrame
+        df = statements[3].get_dataframe()  # Adjust index if needed for specific statements
+        
+        # Save DataFrame to CSV with the ticker in the filename
+        df.to_csv(f"./{ticker}_financials.csv")
+        
+        print(f"Financial data for {ticker} saved successfully.")
+    
+    except Exception as e:
+        print(f"Failed to retrieve data for {ticker}: {e}")
+
